@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Macedonia Strategy</title>
+  <meta name="description" content="A geographic strategy game set across the eight regions of North Macedonia.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="sun-mark" aria-hidden="true">☀</span>
+        <div>
+          <strong>Macedonia</strong>
+          <small>THE REGIONAL CAMPAIGN</small>
+        </div>
+      </div>
+      <div class="resources" aria-label="National resources">
+        <div class="resource"><span class="coin">●</span><div><small>DENARS</small><strong id="denars">820</strong></div></div>
+        <div class="resource"><span class="blue-disc">◆</span><div><small>INFLUENCE</small><strong id="influence">42</strong></div></div>
+        <div class="resource"><span class="army">▲</span><div><small>ARMY</small><strong id="army">18</strong></div></div>
+      </div>
+      <button id="nextTurn" class="turn-button">NEXT TURN <span>›</span></button>
+    </header>
+
+    <section class="campaign">
+      <aside class="sidebar left-panel">
+        <div class="panel-heading">
+          <span>STATE OF THE NATION</span>
+          <button id="muteButton" title="Toggle sound" aria-label="Toggle sound">♪</button>
+        </div>
+        <div class="nation-card">
+          <div class="coat"><span>МК</span></div>
+          <div><small>NATIONAL CAPITAL</small><strong>Skopje</strong></div>
+        </div>
+        <dl class="stats">
+          <div><dt>Population</dt><dd id="population">1.82m</dd></div>
+          <div><dt>Control</dt><dd id="control">8 / 8</dd></div>
+          <div><dt>Stability</dt><dd id="stability">72%</dd></div>
+          <div><dt>Diplomacy</dt><dd id="diplomacy">Balanced</dd></div>
+        </dl>
+        <div class="objectives">
+          <h3>CAMPAIGN GOALS</h3>
+          <label><input id="goalEconomy" type="checkbox" disabled> Reach 1,500 denars</label>
+          <label><input id="goalStability" type="checkbox" disabled> Reach 85 stability</label>
+          <label><input id="goalArmy" type="checkbox" disabled> Raise 30 army</label>
+        </div>
+      </aside>
+
+      <div class="map-wrap">
+        <div class="map-toolbar">
+          <span id="turnLabel">TURN 1 · SPRING 2026</span>
+          <div class="map-legend">
+            <span><i class="dot player"></i> Macedonian control</span>
+            <span><i class="dot disputed"></i> Disputed</span>
+          </div>
+        </div>
+        <svg id="map" role="img" aria-label="Map of North Macedonia's eight statistical regions">
+          <g id="mapScene"></g>
+        </svg>
+        <div id="tooltip" class="tooltip" hidden></div>
+      </div>
+
+      <aside class="sidebar right-panel">
+        <div class="panel-heading">
+          <span id="regionTitle">SKOPJE REGION</span>
+        </div>
+        <div class="region-summary">
+          <div class="region-emblem">SK</div>
+          <div>
+            <small id="regionCapital">Capital: Skopje</small>
+            <strong id="regionStatus">Macedonian control</strong>
+          </div>
+        </div>
+        <dl class="stats region-stats">
+          <div><dt>Population</dt><dd id="regionPopulation">620k</dd></div>
+          <div><dt>Economy</dt><dd id="regionEconomy">High</dd></div>
+          <div><dt>Army</dt><dd id="regionArmy">4</dd></div>
+          <div><dt>Stability</dt><dd id="regionStability">76%</dd></div>
+        </dl>
+        <div class="actions">
+          <h3>REGIONAL ACTIONS</h3>
+          <button id="buildEconomy" class="action-button"><span class="action-icon">●</span><span><strong>Build industry</strong><small>Cost 180 denars</small></span></button>
+          <button id="buildGarrison" class="action-button"><span class="action-icon">▲</span><span><strong>Raise garrison</strong><small>Cost 120 denars</small></span></button>
+          <button id="hostFestival" class="action-button"><span class="action-icon">◆</span><span><strong>Host festival</strong><small>Cost 90 influence</small></span></button>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="ticker">
+      <strong>NEWSWIRE</strong>
+      <span id="newsText">The 2026 regional program begins under clear skies.</span>
+    </footer>
+  </main>
+  <div id="eventModal" class="modal" hidden>
+    <div class="modal-card">
+      <small id="eventSeason">SPRING REPORT</small>
+      <h2 id="eventTitle">A prosperous season</h2>
+      <p id="eventText"></p>
+      <button id="closeModal">CONTINUE</button>
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

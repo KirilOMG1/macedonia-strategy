@@ -25,5 +25,7 @@ The municipal and regional boundaries are included in this repository under the 
 
 - Click a region to inspect it.
 - Invest in industry, raise a garrison, or host a festival.
+- Select a border region, move garrison units to a neighboring front, and attack it.
+- Improve relations to reduce the chance of border attacks.
 - Advance through seasons; collect regional income and respond to national events.
 - Complete the three campaign goals to build a prosperous Macedonia.

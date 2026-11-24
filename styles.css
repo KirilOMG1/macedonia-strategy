@@ -169,3 +169,23 @@ body {
 .modal-card h2 { margin: 8px 0 10px; font-family: Georgia, serif; }
 .modal-card p { color: #5d5748; line-height: 1.5; font-size: 13px; }
 .modal-card button { width: 100%; margin-top: 12px; height: 38px; border: 0; background: var(--red); color: white; font-weight: 800; cursor: pointer; }
+
+.victory-card { border-left: 5px solid #d0aa61; }
+
+.front-button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  margin: 6px 0;
+  padding: 7px 8px;
+  border: 1px solid #bbb192;
+  background: #f5f1e5;
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  font-size: 10px;
+}
+.front-button small { color: #817557; }
+.front-button strong { color: #7e3338; }
+.front-button:disabled { opacity: .45; cursor: not-allowed; }

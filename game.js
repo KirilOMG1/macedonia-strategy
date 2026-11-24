@@ -49,7 +49,21 @@ const state = {
   diplomacy: "Balanced",
   selected: "Skopje",
   regions: Object.fromEntries(Object.entries(regionMeta).map(([name, data]) => [name, { ...data, level: 0 }])),
-  muted: false
+  muted: false,
+  finished: false,
+  relations: { Albania: 55, Kosovo: 52, Serbia: 48, Bulgaria: 60, Greece: 62 },
+  fronts: { Albania: { army: 0, enemy: 4, controlled: false }, Kosovo: { army: 0, enemy: 4, controlled: false }, Serbia: { army: 0, enemy: 5, controlled: false }, Bulgaria: { army: 0, enemy: 4, controlled: false }, Greece: { army: 0, enemy: 3, controlled: false } }
+};
+
+const borderMap = {
+  Skopje: ["Serbia", "Kosovo"],
+  Polog: ["Kosovo", "Albania"],
+  Southwest: ["Albania", "Greece"],
+  Pelagonia: ["Greece", "Albania"],
+  Southeast: ["Greece", "Bulgaria"],
+  East: ["Bulgaria"],
+  Northeast: ["Serbia", "Kosovo"],
+  Vardar: ["Greece", "Serbia"]
 };
 
 const seasons = ["SPRING", "SUMMER", "AUTUMN", "WINTER"];
@@ -251,6 +265,8 @@ function bindEvents() {
   $("#buildEconomy").addEventListener("click", () => takeAction("economy"));
   $("#buildGarrison").addEventListener("click", () => takeAction("garrison"));
   $("#hostFestival").addEventListener("click", () => takeAction("festival"));
+  $("#improveRelations").addEventListener("click", () => takeAction("relations"));
+  $("#resetGame").addEventListener("click", resetGame);
 }
 
 function takeAction(action) {
@@ -264,10 +280,86 @@ function takeAction(action) {
   } else if (action === "festival" && state.influence >= 90) {
     state.influence -= 90; state.stability += 5; region.stability += 4;
     setNews(`A national festival strengthened unity in ${state.selected}.`);
+  } else if (action === "relations" && state.influence >= 35) {
+    state.influence -= 35;
+    for (const border of borderMap[state.selected] || []) {
+      state.relations[border] = Math.min(100, state.relations[border] + 6);
+    }
+    state.diplomacy = "Improving";
+    setNews(`Diplomatic delegations improved ties near ${state.selected}.`);
   } else {
     setNews("The treasury cannot support that action yet.");
   }
   updateUI();
+}
+
+function moveToFront(target) {
+  const region = state.regions[state.selected];
+  if (region.army <= 1) {
+    setNews(`${state.selected} needs at least one unit kept at home.`);
+  } else {
+    region.army--;
+    state.fronts[target].army++;
+    setNews(`One unit moved from ${state.selected} to the ${target} border.`);
+  }
+  updateUI();
+}
+
+function attackFront(target) {
+  const front = state.fronts[target];
+  if (front.controlled) {
+    setNews(`${target} is already secured.`);
+  } else if (front.army < 2) {
+    setNews(`Deploy at least 2 units to the ${target} front first.`);
+  } else {
+    const attackPower = front.army + Math.floor(state.army / 10);
+    const defense = front.enemy + Math.max(0, Math.floor((60 - state.relations[target]) / 12));
+    if (attackPower >= defense) {
+      front.controlled = true;
+      front.enemy = 0;
+      state.relations[target] = 70;
+      state.influence += 12;
+      state.stability = Math.min(100, state.stability + 3);
+      setNews(`${target} has been secured through a successful border campaign.`);
+      showEvent([`${target} secured`, `Macedonian forces established control along the ${target} border.`]);
+    } else {
+      front.army = Math.max(0, front.army - 1);
+      state.relations[target] = Math.max(10, state.relations[target] - 10);
+      state.stability = Math.max(30, state.stability - 3);
+      setNews(`The assault against ${target} failed. Forces were lost and tensions rose.`);
+    }
+  }
+  updateUI();
+  checkVictory();
+}
+
+function resetGame() {
+  window.location.reload();
+}
+
+function renderFrontActions() {
+  const container = $("#frontActions");
+  if (!container) return;
+  const fronts = borderMap[state.selected] || [];
+  container.innerHTML = "";
+  for (const target of fronts) {
+    const front = state.fronts[target];
+    const wrapper = document.createElement("div");
+    const move = document.createElement("button");
+    move.className = "front-button";
+    move.innerHTML = `<span><small>Move 1 unit to</small><br><b>${target}</b></span><strong>→</strong>`;
+    move.disabled = state.regions[state.selected].army <= 1 || state.finished;
+    move.addEventListener("click", () => moveToFront(target));
+    wrapper.appendChild(move);
+
+    const attack = document.createElement("button");
+    attack.className = "front-button";
+    attack.innerHTML = `<span><small>${front.controlled ? "Secured" : "Enemy strength " + front.enemy}</small><br><b>${front.controlled ? "Controlled" : "Attack " + target}</b></span><strong>${front.army} units</strong>`;
+    attack.disabled = front.controlled || front.army < 2 || state.finished;
+    attack.addEventListener("click", () => attackFront(target));
+    wrapper.appendChild(attack);
+    container.appendChild(wrapper);
+  }
 }
 
 function nextTurn() {
@@ -295,9 +387,29 @@ function nextTurn() {
   if (event[2] === "trade") state.influence += 8;
   if (event[2] === "stability") state.stability = Math.min(100, state.stability + 4);
 
+  const neighbors = Object.keys(state.relations);
+  const hostile = neighbors.filter(name => state.relations[name] < 45);
+  if (state.turn % 3 === 0) {
+    const attacker = (hostile.length ? hostile : neighbors)[((state.turn / 3) - 1) % neighbors.length | 0];
+    const possibleRegions = Object.keys(borderMap).filter(name => borderMap[name].includes(attacker));
+    const targetName = possibleRegions[(state.turn + possibleRegions.length) % possibleRegions.length];
+    const region = state.regions[targetName];
+    const borderDefense = region.army + state.fronts[attacker].army;
+    if (borderDefense >= state.fronts[attacker].enemy) {
+      state.relations[attacker] = Math.min(100, state.relations[attacker] + 2);
+      setNews(`${attacker} forces were stopped at the ${targetName} border.`);
+    } else {
+      region.army = Math.max(1, region.army - 1);
+      region.stability = Math.max(20, region.stability - 8);
+      state.stability = Math.max(30, state.stability - 5);
+      setNews(`${attacker} attacked ${targetName}. Border stability has fallen.`);
+    }
+  }
+
   setNews(event[1]);
   showEvent(event);
   updateUI();
+  checkVictory();
 }
 
 function showEvent(event) {
@@ -334,6 +446,19 @@ function updateUI() {
   $("#goalEconomy").checked = state.denars >= 1500;
   $("#goalStability").checked = state.stability >= 85;
   $("#goalArmy").checked = state.army >= 30;
+  $("#goalBorders").checked = Object.values(state.fronts).filter(front => front.controlled).length >= 3;
+  renderFrontActions();
+}
+
+function checkVictory() {
+  const controlledBorders = Object.values(state.fronts).filter(front => front.controlled).length;
+  if (controlledBorders >= 3 && state.stability >= 85 && state.denars >= 1500) {
+    state.finished = true;
+    showEvent(["National victory", "Macedonia is prosperous, stable, and its borders are secure."]);
+  } else if (state.stability <= 30) {
+    state.finished = true;
+    showEvent(["Campaign lost", "National stability has collapsed. The government can no longer hold the campaign together."]);
+  }
 }
 
 init();

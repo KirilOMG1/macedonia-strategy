@@ -23,9 +23,11 @@ The municipal and regional boundaries are included in this repository under the 
 
 ## Controls
 
-- Click a region to inspect it.
-- Invest in industry, raise a garrison, or host a festival.
-- Select a border region, move garrison units to a neighboring front, and attack it.
-- Improve relations to reduce the chance of border attacks.
-- Advance through seasons; collect regional income and respond to national events.
-- Complete the three campaign goals to build a prosperous Macedonia.
+- Click a province to inspect or select it.
+- Click a friendly adjacent province to move an army.
+- Click an enemy adjacent province to attack it.
+- Recruit units and fortify provinces from the right-hand Orders panel.
+- End a turn to collect income and food and resolve enemy actions.
+- Save progress with the map toolbar or reset the campaign.
+
+The campaign victory requires control of 18 provinces with at least 85 stability.

@@ -3,110 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Macedonia Strategy</title>
-  <meta name="description" content="A geographic strategy game set across the eight regions of North Macedonia.">
+  <title>Macedonia — Crown of the Balkans</title>
+  <meta name="description" content="A turn-based grand strategy game set across Macedonia and its neighbors.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <main class="game-shell">
+  <main class="game">
     <header class="topbar">
       <div class="brand">
-        <span class="sun-mark" aria-hidden="true">☀</span>
+        <div class="crest">☀</div>
         <div>
-          <strong>Macedonia</strong>
-          <small>THE REGIONAL CAMPAIGN</small>
+          <h1>Macedonia</h1>
+          <p>Crown of the Balkans</p>
         </div>
       </div>
-      <div class="resources" aria-label="National resources">
-        <div class="resource"><span class="coin">●</span><div><small>DENARS</small><strong id="denars">820</strong></div></div>
-        <div class="resource"><span class="blue-disc">◆</span><div><small>INFLUENCE</small><strong id="influence">42</strong></div></div>
-        <div class="resource"><span class="army">▲</span><div><small>ARMY</small><strong id="army">18</strong></div></div>
+
+      <div class="resources">
+        <div class="resource"><span class="resource-icon gold">◆</span><div><small>Treasury</small><strong id="goldValue">1,200</strong></div></div>
+        <div class="resource"><span class="resource-icon food">●</span><div><small>Food</small><strong id="foodValue">860</strong></div></div>
+        <div class="resource"><span class="resource-icon army">▲</span><div><small>Army</small><strong id="armyValue">24</strong></div></div>
+        <div class="resource"><span class="resource-icon renown">★</span><div><small>Renown</small><strong id="renownValue">0</strong></div></div>
       </div>
-      <button id="nextTurn" class="turn-button">NEXT TURN <span>›</span></button>
+
+      <div class="turn-controls">
+        <div class="turn-date"><small id="yearValue">Spring 2026</small><strong id="turnValue">Turn 1</strong></div>
+        <button id="endTurnButton" class="end-turn">End turn <span>›</span></button>
+      </div>
     </header>
 
     <section class="campaign">
-      <aside class="sidebar left-panel">
-        <div class="panel-heading">
-          <span>STATE OF THE NATION</span>
-          <button id="muteButton" title="Toggle sound" aria-label="Toggle sound">♪</button>
+      <aside class="left-panel panel">
+        <div class="panel-title">Nation</div>
+        <div class="nation">
+          <div class="nation-flag">МК</div>
+          <div><strong>Republic of Macedonia</strong><small>Regional state</small></div>
         </div>
-        <div class="nation-card">
-          <div class="coat"><span>МК</span></div>
-          <div><small>NATIONAL CAPITAL</small><strong>Skopje</strong></div>
-        </div>
-        <dl class="stats">
-          <div><dt>Population</dt><dd id="population">1.82m</dd></div>
-          <div><dt>Control</dt><dd id="control">8 / 8</dd></div>
-          <div><dt>Stability</dt><dd id="stability">72%</dd></div>
-          <div><dt>Diplomacy</dt><dd id="diplomacy">Balanced</dd></div>
+        <dl class="nation-stats">
+          <div><dt>Population</dt><dd id="populationValue">1.82m</dd></div>
+          <div><dt>Stability</dt><dd id="stabilityValue">76%</dd></div>
+          <div><dt>Provinces</dt><dd id="provinceValue">8 / 22</dd></div>
+          <div><dt>Action points</dt><dd id="actionValue">3</dd></div>
         </dl>
-        <div class="objectives">
-          <h3>CAMPAIGN GOALS</h3>
-          <label><input id="goalEconomy" type="checkbox" disabled> Reach 1,500 denars</label>
-          <label><input id="goalStability" type="checkbox" disabled> Reach 85 stability</label>
-          <label><input id="goalArmy" type="checkbox" disabled> Raise 30 army</label>
-          <label><input id="goalBorders" type="checkbox" disabled> Secure 3 borders</label>
-        </div>
+
+        <div class="panel-title objectives-title">Objectives</div>
+        <div id="objectives" class="objectives"></div>
+
+        <div class="panel-title diplomacy-title">Diplomacy</div>
+        <div id="diplomacyList" class="diplomacy"></div>
       </aside>
 
-      <div class="map-wrap">
-        <div class="map-toolbar">
-          <span id="turnLabel">TURN 1 · SPRING 2026</span>
-          <div class="map-legend">
-            <span><i class="dot player"></i> Macedonian control</span>
-            <span><i class="dot disputed"></i> Disputed</span>
+      <div class="map-panel">
+        <div class="map-header">
+          <div><span id="mapMode">Campaign map</span><strong id="selectedLabel">Skopje</strong></div>
+          <div class="map-tools">
+            <button id="saveButton" title="Save campaign">Save</button>
+            <button id="resetButton" title="Restart campaign">Reset</button>
           </div>
         </div>
-        <svg id="map" role="img" aria-label="Map of North Macedonia's eight statistical regions">
-          <g id="mapScene"></g>
-        </svg>
-        <div id="tooltip" class="tooltip" hidden></div>
+        <div class="map-viewport" id="mapViewport">
+          <svg id="map" viewBox="0 0 900 620" role="img" aria-label="Strategy map of Macedonia and neighboring regions">
+            <g id="mapScene"></g>
+          </svg>
+          <div id="tooltip" class="tooltip" hidden></div>
+          <div id="battleBanner" class="battle-banner" hidden></div>
+        </div>
+        <div class="map-footer">
+          <span id="mapHint">Select a Macedonian province, then choose an adjacent province.</span>
+          <span class="legend"><i class="owned"></i> Macedonian <i class="hostile"></i> Enemy <i class="selected-key"></i> Selected</span>
+        </div>
       </div>
 
-      <aside class="sidebar right-panel">
-        <div class="panel-heading">
-          <span id="regionTitle">SKOPJE REGION</span>
+      <aside class="right-panel panel">
+        <div class="panel-title">Province</div>
+        <div class="province-header">
+          <div id="provinceEmblem" class="province-emblem">SK</div>
+          <div><strong id="provinceName">Skopje</strong><small id="provinceOwner">Republic of Macedonia</small></div>
         </div>
-        <div class="region-summary">
-          <div class="region-emblem">SK</div>
-          <div>
-            <small id="regionCapital">Capital: Skopje</small>
-            <strong id="regionStatus">Macedonian control</strong>
-          </div>
-        </div>
-        <dl class="stats region-stats">
-          <div><dt>Population</dt><dd id="regionPopulation">620k</dd></div>
-          <div><dt>Economy</dt><dd id="regionEconomy">High</dd></div>
-          <div><dt>Army</dt><dd id="regionArmy">4</dd></div>
-          <div><dt>Stability</dt><dd id="regionStability">76%</dd></div>
+        <dl class="province-stats">
+          <div><dt>Army</dt><dd id="provinceArmy">4</dd></div>
+          <div><dt>Income</dt><dd id="provinceIncome">+32</dd></div>
+          <div><dt>Fortification</dt><dd id="provinceFort">0</dd></div>
+          <div><dt>Terrain</dt><dd id="provinceTerrain">Capital</dd></div>
         </dl>
-        <div class="actions">
-          <h3>REGIONAL ACTIONS</h3>
-          <button id="buildEconomy" class="action-button"><span class="action-icon">●</span><span><strong>Build industry</strong><small>Cost 180 denars</small></span></button>
-          <button id="buildGarrison" class="action-button"><span class="action-icon">▲</span><span><strong>Raise garrison</strong><small>Cost 120 denars</small></span></button>
-          <button id="hostFestival" class="action-button"><span class="action-icon">◆</span><span><strong>Host festival</strong><small>Cost 90 influence</small></span></button>
-          <button id="improveRelations" class="action-button"><span class="action-icon">◎</span><span><strong>Improve relations</strong><small>Cost 35 influence</small></span></button>
-          <button id="resetGame" class="action-button"><span class="action-icon">↺</span><span><strong>Restart campaign</strong><small>Reset all progress</small></span></button>
-          <h3 style="margin-top:14px">BORDER OPERATIONS</h3>
-          <div id="frontActions"></div>
-        </div>
+
+        <div class="panel-title action-title">Orders</div>
+        <div id="provinceActions" class="province-actions"></div>
+
+        <div class="panel-title adjacent-title">Adjacent regions</div>
+        <div id="adjacentList" class="adjacent-list"></div>
       </aside>
     </section>
 
-    <footer class="ticker">
-      <strong>NEWSWIRE</strong>
-      <span id="newsText">The 2026 regional program begins under clear skies.</span>
+    <footer class="event-log">
+      <strong>Chronicle</strong>
+      <div id="chronicle">The campaign begins.</div>
     </footer>
   </main>
-  <div id="eventModal" class="modal" hidden>
+
+  <div id="modal" class="modal" hidden>
     <div class="modal-card">
-      <small id="eventSeason">SPRING REPORT</small>
-      <h2 id="eventTitle">A prosperous season</h2>
-      <p id="eventText"></p>
-      <button id="closeModal">CONTINUE</button>
+      <small id="modalKicker">Campaign report</small>
+      <h2 id="modalTitle"></h2>
+      <p id="modalText"></p>
+      <button id="modalClose">Continue</button>
     </div>
   </div>
+
   <script src="game.js"></script>
 </body>
 </html>
